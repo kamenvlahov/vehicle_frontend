@@ -1,4 +1,3 @@
-// stores/VehicleCreateStore.js
 import { makeAutoObservable, runInAction } from "mobx";
 import axiosInstance from '../utils/axiosInstance';
 
@@ -25,24 +24,40 @@ class VehicleCreateStore {
 
     setVehicleType(type) {
         this.vehicleType = type;
+        this.resetFormData();
     }
 
     setFormData(data) {
         this.formData = { ...this.formData, ...data };
     }
-
+    resetFormData() {
+        this.formData = {
+            brand: "",
+            model: "",
+            price: "",
+            quantity: "",
+            engineCapacity: "",
+            color: "",
+            numberOfDoors: "",
+            carCategory: "",
+            numberOfBeds: "",
+            loadCapacity: "",
+            numberOfAxles: "",
+        };
+    }
     async submitVehicle() {
         try {
             await axiosInstance.post("/api/vehicle/", {
                 type: this.vehicleType,
                 ...this.formData,
             });
-            return true; // Indicate success
+            this.resetFormData()
+            return true;
         } catch (error) {
             runInAction(() => {
-                this.errors = error.response ? error.response.data : error.message;
+                this.errors = error.response?.data?.detail || error.message;
             });
-            return false; // Indicate failure
+            return false;
         }
     }
 }

@@ -73,9 +73,13 @@ const Dashboard = observer(() => {
                 Vehicle List
             </Typography>
             <Box mb={3}>
-                <Button variant="contained" color="primary" onClick={handleCreateClick}>
-                    Create Vehicle
-                </Button>
+
+                {authStore.roles.includes("ROLE_ADMIN") && (
+                    <Button variant="contained" color="primary" onClick={handleCreateClick}>
+                        Create Vehicle
+                    </Button>
+                )}
+
                 <Button variant="contained" onClick={() => navigate('/followed')} sx={{ ml: 3 }}>
                     Followed vehicles
                 </Button>
@@ -110,7 +114,7 @@ const Dashboard = observer(() => {
                             >
                                 <CardContent>
                                     <IconButton
-                                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                                        sx={{ position: 'absolute', top: 8, right: 8, color: 'red' }}
                                         color="secondary"
                                         onClick={(e) => handleFollowClick(vehicle.id, e)}
                                     >

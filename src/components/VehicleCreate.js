@@ -1,21 +1,21 @@
 import React from "react";
-import { TextField, Button, Box, MenuItem, Typography, Container } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { observer } from "mobx-react-lite"; // Import observer
+import {TextField, Button, Box, MenuItem, Typography, Container} from "@mui/material";
+import {useNavigate} from "react-router-dom";
+import {observer} from "mobx-react-lite"; // Import observer
 import vehicleCreateStore from "../stores/VehicleCreateStore"; // Import your store
 
 const vehicleTypes = [
-    { value: "motorcycle", label: "Motorcycle" },
-    { value: "car", label: "Car" },
-    { value: "truck", label: "Truck" },
-    { value: "trailer", label: "Trailer" },
+    {value: "motorcycle", label: "Motorcycle"},
+    {value: "car", label: "Car"},
+    {value: "truck", label: "Truck"},
+    {value: "trailer", label: "Trailer"},
 ];
 
 const VehicleCreate = observer(() => {
     const navigate = useNavigate();
 
     const handleInputChange = (e) => {
-        vehicleCreateStore.setFormData({ [e.target.name]: e.target.value });
+        vehicleCreateStore.setFormData({[e.target.name]: e.target.value});
     };
 
     const handleSubmit = async (e) => {
@@ -243,13 +243,19 @@ const VehicleCreate = observer(() => {
 
                 {vehicleCreateStore.errors && (
                     <Typography color="error" align="center">
-                        {vehicleCreateStore.errors.message || "Failed to create vehicle. Please try again."}
+                        {vehicleCreateStore.errors || "Failed to create vehicle. Please try again."}
                     </Typography>
                 )}
 
                 <Box mt={3}>
                     <Button fullWidth variant="contained" color="primary" type="submit">
                         Create Vehicle
+                    </Button>
+                    <Button fullWidth variant="outlined" onClick={() => {
+                        vehicleCreateStore.resetFormData(); // Reset form data
+                        navigate('/dashboard'); // Navigate to dashboard
+                         }} sx={{mt: 3}}>
+                        Back to Dashboard
                     </Button>
                 </Box>
             </form>

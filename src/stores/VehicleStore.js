@@ -46,7 +46,7 @@ class VehicleStore {
             });
         } catch (error) {
             runInAction(() => {
-                console.error("Failed to follow vehicle", error);
+
                 this.error = "Failed to follow vehicle";
             });
         }
