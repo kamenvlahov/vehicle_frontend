@@ -1,85 +1,86 @@
-// src/utils/AuthStore.js
-import { makeAutoObservable } from "mobx";
-import axiosInstance from "../utils/axiosInstance"; // Adjust the path as needed
+import {makeAutoObservable} from "mobx";
+import axiosInstance from "../utils/axiosInstance";
 
 class AuthStore {
     token = localStorage.getItem("token") || null;
     isAuthenticated = !!this.token;
     errors = null;
-    roles = []; // Store user roles
+    roles = [];
 
     constructor() {
         makeAutoObservable(this);
-        this.loadRoles(); // Load roles from localStorage
+        this.loadRoles();
     }
 
-    // Load roles from localStorage if present
     loadRoles() {
         const storedRoles = localStorage.getItem("roles");
         if (storedRoles) {
             try {
-                this.roles = JSON.parse(storedRoles); // Опитай да парснеш JSON
-                console.log("Loaded roles from localStorage:", this.roles); // Логване на заредените роли
+                this.roles = JSON.parse(storedRoles);
             } catch (e) {
-                console.error("Failed to parse roles from localStorage:", e);
-                this.roles = []; // Нулирай ролите при грешка
+                this.roles = []; // Reset roles on error
             }
         } else {
-            console.warn("No roles found in localStorage."); // Логване, ако няма роли
+            console.warn("No roles found in localStorage.");
         }
     }
 
-    // Register a new user
     async register(userData) {
+        this.errors = null;
         try {
             const response = await axiosInstance.post("/register", userData);
-            console.log("Registration Response:", response.data); // Логване на отговора от регистрацията
-            this.setToken(response.data.token, response.data.roles); // Set roles after registration
-            return response.data;
-        } catch (error) {
-            this.errors = error.response ? error.response.data : error.message;
-            console.error("Registration error:", this.errors); // Логване на грешка
-        }
-    }
-
-    // Login user
-    async login(userData) {
-        try {
-            const response = await axiosInstance.post("/login", userData);
-            console.log("API Response:", response.data); // Логване на отговора от API-то
+            console.log("Registration Response:", response.data);
             this.setToken(response.data.token, response.data.roles);
             return response.data;
         } catch (error) {
-            this.errors = error.response ? error.response.data : error.message;
-            console.error("Login error:", this.errors); // Логване на грешка
+
+            if (error.response && error.response.data) {
+                this.errors = error.response.data.errors || error.response.data;
+            } else {
+                this.errors = error.message;
+            }
+            console.error("Registration error:", this.errors);
         }
     }
 
-    // Logout user
+    async login(userData) {
+        // this.errors = null;
+        console.log(this.errors)
+        try {
+            const response = await axiosInstance.post("/login", userData);
+            this.setToken(response.data.token, response.data.roles);
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.data) {
+                this.errors = error.response.data.errors || error.response.data;
+            } else {
+                this.errors = error.message;
+            }
+            console.error("Login error:", this.errors);
+        }
+    }
+
     logout() {
         this.token = null;
         this.isAuthenticated = false;
-        this.roles = []; // Clear roles on logout
+        this.roles = [];
         localStorage.removeItem("token");
-        localStorage.removeItem("roles"); // Also clear roles from local storage
-        console.log("User logged out and roles cleared."); // Логване на изхода
+        localStorage.removeItem("roles");
+        console.log("User logged out and roles cleared.");
     }
 
-    // Set JWT token and update authentication state
     setToken(token, roles) {
         this.token = token;
         this.isAuthenticated = true;
-        this.roles = Array.from(roles || []); // Копирай ролите в нов масив
+        this.roles = Array.from(roles || []);
 
-        // Логване на ролите преди запис
         console.log("Saving roles to localStorage:", this.roles);
 
         localStorage.setItem("token", token);
-        localStorage.setItem("roles", JSON.stringify(this.roles)); // Store roles in local storage
+        localStorage.setItem("roles", JSON.stringify(this.roles));
         this.errors = null; // Reset errors on successful login
     }
 
-    // Check if user has a specific role
     hasRole(role) {
         const hasRole = this.roles.includes(role);
         console.log("Checking role:", role, "Available roles:", this.roles);
@@ -88,4 +89,4 @@ class AuthStore {
 }
 
 const authStore = new AuthStore();
-export default authStore; // Export the instance
+export default authStore;

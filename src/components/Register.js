@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { TextField, Button, Container, Typography, Box } from "@mui/material"; // MUI components
-import authStore from "../utils/AuthStore"; // Ensure this path is correct
+import { TextField, Button, Container, Typography, Box, CircularProgress } from "@mui/material";
+import authStore from "../utils/AuthStore";
 import { useNavigate } from "react-router-dom";
 
 const Register = observer(() => {
     const [form, setForm] = useState({ email: "", password: "" });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -17,13 +19,17 @@ const Register = observer(() => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError(null);
+
         await authStore.register(form);
-        // Check if the user is authenticated after registration
+        setLoading(false);
+
         if (authStore.isAuthenticated) {
-            navigate("/dashboard"); // Redirect after registration
+            setForm({ email: "", password: "" });
+            navigate("/dashboard");
         } else {
-            // Optionally provide user feedback if registration fails
-            console.error("Registration failed:", authStore.errors); // Log errors to console
+            setError(typeof authStore.errors === 'string' ? authStore.errors : 'Registration failed. Please try again.');
         }
     };
 
@@ -57,12 +63,12 @@ const Register = observer(() => {
                         required
                     />
                 </Box>
-                {authStore.errors && (
-                    <Typography color="error">{authStore.errors}</Typography> // Adjust based on your error structure
+                {error && (
+                    <Typography color="error" mb={2}>{error}</Typography>
                 )}
                 <Box mt={2}>
-                    <Button fullWidth type="submit" variant="contained" color="primary">
-                        Register
+                    <Button fullWidth type="submit" variant="contained" color="primary" disabled={loading}>
+                        {loading ? <CircularProgress size={24} /> : "Register"} {/* Show loading indicator */}
                     </Button>
                 </Box>
             </form>

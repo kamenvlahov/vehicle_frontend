@@ -1,28 +1,25 @@
-// src/components/Login.js
+
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { TextField, Button, Container, Typography, Box } from "@mui/material"; // MUI components
-import authStore from '../utils/AuthStore'; // Ensure this path is correct
+import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import authStore from '../utils/AuthStore';
 import { useNavigate } from 'react-router-dom';
 
 const Login = observer(() => {
-    const [email, setEmail] = useState(''); // Changed from username to email
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null); // State for error messages
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(null); // Reset error state before attempting login
+        setError(null);
 
-        // Attempt to log in the user
-        await authStore.login({ email, password }); // Use email instead of username
+        await authStore.login({ email, password });
 
-        // Check if the login was successful
         if (authStore.isAuthenticated) {
-            navigate('/dashboard'); // Navigate to dashboard after successful login
+            navigate('/dashboard');
         } else {
-            // Check if authStore.errors is an object and extract the message
             const errorMessage = typeof authStore.errors === 'object'
                 ? authStore.errors.message || 'Login failed. Please try again.'
                 : authStore.errors || 'Login failed. Please try again.';
@@ -42,9 +39,9 @@ const Login = observer(() => {
                 <Box mb={2}>
                     <TextField
                         fullWidth
-                        label="Email" // Updated label
-                        type="email" // Ensure type is set to email
-                        value={email} // Changed from username to email
+                        label="Email"
+                        type="email"
+                        value={email}
                         onChange={(e) => setEmail(e.target.value)} // Changed from username to email
                         required
                     />
